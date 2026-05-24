@@ -4,14 +4,16 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
+type CustomerInfo = {
+  name: string
+  phone: string
+}
+
 type CustomerRow = {
   id: string
   points: number
   visits: number
-  customers: {
-    name: string
-    phone: string
-  }
+  customers: CustomerInfo | null
 }
 
 export default function OwnerCustomersPage() {
@@ -52,7 +54,16 @@ export default function OwnerCustomersPage() {
       return
     }
 
-    setCustomers((data || []) as CustomerRow[])
+    const fixedData: CustomerRow[] = (data || []).map((item: any) => ({
+      id: item.id,
+      points: item.points || 0,
+      visits: item.visits || 0,
+      customers: Array.isArray(item.customers)
+        ? item.customers[0] || null
+        : item.customers || null,
+    }))
+
+    setCustomers(fixedData)
     setLoading(false)
   }
 
@@ -128,6 +139,7 @@ export default function OwnerCustomersPage() {
                   <h2 className="text-xl font-black">
                     {row.customers?.name || 'Unknown Customer'}
                   </h2>
+
                   <p className="mt-1 text-sm text-white/60">
                     {row.customers?.phone || 'No phone'}
                   </p>

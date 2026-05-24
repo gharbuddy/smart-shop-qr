@@ -154,6 +154,12 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
       currentCustomer = newCustomer
     }
 
+
+    if (!currentCustomer) {
+      setMessage('Customer login failed')
+       return
+    }
+
     const { data: existingRelation, error: relationCheckError } = await supabase
       .from('shop_customers')
       .select('*')
