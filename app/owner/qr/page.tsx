@@ -4,6 +4,15 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { QRCodeCanvas } from 'qrcode.react'
 import { supabase } from '@/lib/supabase'
+import {
+  FaGift,
+  FaStar,
+  FaHeart,
+  FaSmile,
+  FaShieldAlt,
+  FaPrint,
+  FaMobileAlt,
+} from 'react-icons/fa'
 
 type Shop = {
   id: string
@@ -68,53 +77,127 @@ export default function OwnerQrPage() {
           Back
         </button>
 
-        <div className="rounded-[32px] border border-white/10 bg-white/10 p-6 text-center shadow-2xl print:border-0 print:bg-white print:text-black print:shadow-none">
-          <p className="text-sm text-white/60 print:text-black/60">
-            Shop QR Code
-          </p>
+        <div className="relative overflow-hidden rounded-[42px] border border-white/10 bg-[#080d18] p-6 text-center shadow-2xl print:border-0 print:bg-white print:text-black print:shadow-none">
+          <div className="absolute left-[-90px] top-[-90px] h-52 w-52 rounded-full bg-lime-300/25 blur-3xl print:hidden" />
+          <div className="absolute bottom-[-100px] right-[-90px] h-56 w-56 rounded-full bg-cyan-300/25 blur-3xl print:hidden" />
 
-          <h1 className="mt-2 text-3xl font-black print:text-black">
-            {shop?.shop_name}
-          </h1>
+          <div className="relative">
+            <h1
+              className="text-5xl font-black leading-tight text-transparent bg-clip-text bg-gradient-to-r from-lime-300 to-cyan-300 print:text-black"
+              style={{ fontFamily: 'cursive' }}
+            >
+              Smart Shop QR
+            </h1>
 
-          <p className="mt-3 break-all text-xs text-white/60 print:text-black/60">
-            {qrLink}
-          </p>
+            <p className="mt-4 text-sm font-bold uppercase tracking-[0.25em] text-white/70 print:text-black/70">
+              Shop Smart • Earn Rewards • Save More
+            </p>
 
-          <div className="mt-6 inline-block rounded-3xl bg-white p-4">
-            <QRCodeCanvas
-              id="owner-shop-qr"
-              value={qrLink}
-              size={260}
-              bgColor="#ffffff"
-              fgColor="#000000"
-              level="H"
-              includeMargin
-            />
+            <div className="mt-8">
+              <p className="text-3xl font-black uppercase tracking-tight text-white print:text-black">
+                Scan to Get
+              </p>
+              <p className="text-5xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-r from-lime-300 to-cyan-300 print:text-black">
+                Rewards
+              </p>
+            </div>
+
+            <div className="mt-6 grid grid-cols-2 gap-4">
+              <div className="rounded-3xl border border-lime-300/30 bg-white/5 p-4 print:border-black/20 print:bg-white">
+                <FaGift className="mx-auto text-3xl text-lime-300 print:text-black" />
+                <p className="mt-2 text-xs font-black uppercase text-white/80 print:text-black">
+                  Exciting Offers
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-cyan-300/30 bg-white/5 p-4 print:border-black/20 print:bg-white">
+                <FaStar className="mx-auto text-3xl text-cyan-300 print:text-black" />
+                <p className="mt-2 text-xs font-black uppercase text-white/80 print:text-black">
+                  Earn Points
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-8 inline-block rounded-[34px] bg-white p-5 shadow-[0_0_35px_rgba(163,255,66,0.35)]">
+              <QRCodeCanvas
+                id="owner-shop-qr"
+                value={qrLink}
+                size={260}
+                bgColor="#ffffff"
+                fgColor="#000000"
+                level="H"
+                includeMargin
+              />
+            </div>
+
+            <div className="mx-auto mt-6 w-fit rounded-full bg-gradient-to-r from-lime-300 to-cyan-300 px-6 py-3 text-sm font-black uppercase text-black">
+              Every Scan • Every Spend • Every Reward
+            </div>
+
+            <p
+              className="mt-5 text-3xl text-lime-300 print:text-black"
+              style={{ fontFamily: 'cursive' }}
+            >
+              Thank you for supporting local!
+            </p>
+
+            <p className="mt-3 text-lg font-black text-white print:text-black">
+              {shop?.shop_name}
+            </p>
+
+            <div className="mt-7 grid grid-cols-4 gap-2 rounded-3xl border border-white/10 bg-white/5 p-3 print:border-black/20 print:bg-white">
+              <div className="p-2">
+                <FaSmile className="mx-auto text-2xl text-lime-300 print:text-black" />
+                <p className="mt-2 text-[10px] font-black uppercase text-white/70 print:text-black">
+                  Easy
+                </p>
+              </div>
+
+              <div className="p-2">
+                <FaGift className="mx-auto text-2xl text-yellow-300 print:text-black" />
+                <p className="mt-2 text-[10px] font-black uppercase text-white/70 print:text-black">
+                  Rewards
+                </p>
+              </div>
+
+              <div className="p-2">
+                <FaShieldAlt className="mx-auto text-2xl text-cyan-300 print:text-black" />
+                <p className="mt-2 text-[10px] font-black uppercase text-white/70 print:text-black">
+                  Trusted
+                </p>
+              </div>
+
+              <div className="p-2">
+                <FaHeart className="mx-auto text-2xl text-pink-400 print:text-black" />
+                <p className="mt-2 text-[10px] font-black uppercase text-white/70 print:text-black">
+                  Value
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-7 grid grid-cols-2 gap-4 print:hidden">
+              <button
+                onClick={printQr}
+                className="flex items-center justify-center gap-2 rounded-3xl bg-lime-300 p-4 font-black text-black"
+              >
+                <FaPrint />
+                Print QR
+              </button>
+
+              <a
+                href={qrLink}
+                target="_blank"
+                className="flex items-center justify-center gap-2 rounded-3xl bg-white p-4 font-black text-black"
+              >
+                <FaMobileAlt />
+                Open Page
+              </a>
+            </div>
+
+            <p className="mt-5 text-sm text-white/50 print:text-black/60">
+              Scan • Earn • Redeem • Repeat
+            </p>
           </div>
-
-          <p className="mt-5 text-lg font-black print:text-black">
-            Scan to view offers and rewards
-          </p>
-
-          <p className="mt-2 text-sm text-white/60 print:text-black/60">
-            No app install required
-          </p>
-
-          <button
-            onClick={printQr}
-            className="mt-6 w-full rounded-3xl bg-lime-300 p-4 font-black text-black print:hidden"
-          >
-            Print QR
-          </button>
-
-          <a
-            href={qrLink}
-            target="_blank"
-            className="mt-3 block rounded-3xl bg-white p-4 font-black text-black print:hidden"
-          >
-            Open Shop Page
-          </a>
         </div>
       </div>
     </main>
