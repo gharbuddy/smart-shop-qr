@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { QRCodeCanvas } from 'qrcode.react'
+import Link from 'next/link'
 
 export default function NewShopPage() {
   const [shopName, setShopName] = useState('')
@@ -16,8 +16,11 @@ export default function NewShopPage() {
   const [offer, setOffer] = useState('')
   const [pin, setPin] = useState('1234')
 
-  const [createdLink, setCreatedLink] = useState('')
+  const [createdShopName, setCreatedShopName] = useState('')
+  const [createdPhone, setCreatedPhone] = useState('')
+  const [createdPin, setCreatedPin] = useState('')
   const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(false)
 
   function createSlug(name: string) {
     return name
@@ -29,54 +32,93 @@ export default function NewShopPage() {
 
   async function createShop() {
     setMessage('')
-    setCreatedLink('')
+    setCreatedShopName('')
+    setCreatedPhone('')
+    setCreatedPin('')
+    setLoading(true)
 
-    if (!shopName.trim() || !phone.trim()) {
+    const cleanShopName = shopName.trim()
+    const cleanPhone = phone.trim()
+    const cleanPin = pin.trim() || '1234'
+
+    if (!cleanShopName || !cleanPhone) {
       setMessage('Shop name and phone are required')
+      setLoading(false)
       return
     }
 
-    const slug = createSlug(shopName)
+    const slug = createSlug(cleanShopName)
 
-    const { error } = await supabase.from('shops').insert({
-      shop_name: shopName.trim(),
-      slug,
-      phone: phone.trim(),
-      whatsapp: whatsapp.trim() || phone.trim(),
-      instagram_url: instagram.trim(),
-      facebook_url: facebook.trim(),
-      twitter_url: twitter.trim(),
-      google_maps_url: maps.trim(),
-      google_review_url: review.trim(),
-      today_offer: offer.trim(),
-      cashier_pin: pin.trim() || '1234',
-    })
+    const { data: existingShop } = await supabase
+      .from('shops')
+      .select('id')
+      .eq('slug', slug)
+      .maybeSingle()
+
+    if (existingShop) {
+      setMessage('This shop name already exists. Please use a different shop name.')
+      setLoading(false)
+      return
+    }
+
+    const { data, error } = await supabase
+      .from('shops')
+      .insert({
+        shop_name: cleanShopName,
+        slug,
+        phone: cleanPhone,
+        whatsapp: whatsapp.trim() || cleanPhone,
+        instagram_url: instagram.trim(),
+        facebook_url: facebook.trim(),
+        twitter_url: twitter.trim(),
+        google_maps_url: maps.trim(),
+        google_review_url: review.trim(),
+        today_offer: offer.trim(),
+        cashier_pin: cleanPin,
+        owner_phone: cleanPhone,
+        owner_pin: cleanPin,
+      })
+      .select()
+      .single()
 
     if (error) {
       setMessage(error.message)
+      setLoading(false)
       return
     }
 
-    const fullLink = `${window.location.origin}/shop/${slug}`
-    setCreatedLink(fullLink)
-    setMessage('Shop created successfully')
-  }
+    localStorage.removeItem('owner_shop_id')
+    localStorage.removeItem('owner_shop_name')
 
-  function printQr() {
-    window.print()
+    setCreatedShopName(data.shop_name)
+    setCreatedPhone(cleanPhone)
+    setCreatedPin(cleanPin)
+    setMessage('Shop registered successfully. Please login to your dashboard.')
+    setLoading(false)
+
+    setShopName('')
+    setPhone('')
+    setWhatsapp('')
+    setInstagram('')
+    setFacebook('')
+    setTwitter('')
+    setMaps('')
+    setReview('')
+    setOffer('')
+    setPin('1234')
   }
 
   return (
     <main className="min-h-screen bg-[#050711] p-5 text-white">
       <div className="mx-auto max-w-md py-8">
-        <h1 className="text-3xl font-black">Add New Shop</h1>
+        <h1 className="text-3xl font-black">Register Your Shop</h1>
         <p className="mt-2 text-sm text-white/60">
-          Create shop profile and QR link
+          Create your Smart Shop QR account. After registration, login to your dashboard to view and print your QR.
         </p>
 
-        <div className="mt-8 space-y-4 print:hidden">
+        <div className="mt-8 space-y-4">
           <input className="input" placeholder="Shop name" value={shopName} onChange={(e) => setShopName(e.target.value)} />
-          <input className="input" placeholder="Phone number" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <input className="input" placeholder="Owner phone number" value={phone} onChange={(e) => setPhone(e.target.value)} />
           <input className="input" placeholder="WhatsApp number" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} />
           <input className="input" placeholder="Instagram URL" value={instagram} onChange={(e) => setInstagram(e.target.value)} />
           <input className="input" placeholder="Facebook URL" value={facebook} onChange={(e) => setFacebook(e.target.value)} />
@@ -84,70 +126,51 @@ export default function NewShopPage() {
           <input className="input" placeholder="Google Maps URL" value={maps} onChange={(e) => setMaps(e.target.value)} />
           <input className="input" placeholder="Google Review URL" value={review} onChange={(e) => setReview(e.target.value)} />
           <input className="input" placeholder="Today offer" value={offer} onChange={(e) => setOffer(e.target.value)} />
-          <input className="input" placeholder="Cashier PIN" value={pin} onChange={(e) => setPin(e.target.value)} />
+          <input className="input" placeholder="Login PIN and Cashier PIN" value={pin} onChange={(e) => setPin(e.target.value)} />
 
           <button
             onClick={createShop}
-            className="w-full rounded-3xl bg-lime-300 p-4 font-black text-black"
+            disabled={loading}
+            className="w-full rounded-3xl bg-lime-300 p-4 font-black text-black disabled:opacity-60"
           >
-            Create Shop
+            {loading ? 'Creating Shop...' : 'Register Shop'}
           </button>
 
           {message && (
-            <p className="rounded-2xl bg-white/10 p-3 text-sm">{message}</p>
+            <div className="rounded-2xl bg-white/10 p-4 text-sm">
+              {message}
+            </div>
+          )}
+
+          {createdShopName && (
+            <div className="rounded-[32px] border border-white/10 bg-white/10 p-5 shadow-2xl">
+              <p className="text-sm text-lime-300">Registration Complete</p>
+
+              <h2 className="mt-2 text-2xl font-black">
+                {createdShopName}
+              </h2>
+
+              <div className="mt-4 rounded-3xl bg-black/30 p-4">
+                <p className="text-sm text-white/60">Login Phone</p>
+                <p className="mt-1 font-black">{createdPhone}</p>
+
+                <p className="mt-4 text-sm text-white/60">Login PIN</p>
+                <p className="mt-1 font-black">{createdPin}</p>
+              </div>
+
+              <p className="mt-4 text-sm text-white/60">
+                Use these details to login and manage your shop QR, offers, customers, and rewards.
+              </p>
+
+              <Link
+                href="/owner/login"
+                className="mt-5 block rounded-3xl bg-white p-4 text-center font-black text-black"
+              >
+                Login to Dashboard
+              </Link>
+            </div>
           )}
         </div>
-
-        {createdLink && (
-          <div className="mt-8 rounded-[32px] border border-white/10 bg-white/10 p-6 text-center shadow-2xl print:border-0 print:bg-white print:text-black print:shadow-none">
-            <p className="text-sm text-white/60 print:text-black/60">
-              Shop QR Link
-            </p>
-
-            <h2 className="mt-2 text-2xl font-black print:text-black">
-              {shopName}
-            </h2>
-
-            <p className="mt-3 break-all text-xs font-medium text-white/70 print:text-black/70">
-              {createdLink}
-            </p>
-
-            <div className="mt-6 inline-block rounded-3xl bg-white p-4">
-              <QRCodeCanvas
-                id="shop-qr"
-                value={createdLink}
-                size={240}
-                bgColor="#ffffff"
-                fgColor="#000000"
-                level="H"
-                includeMargin
-              />
-            </div>
-
-            <p className="mt-4 text-lg font-black print:text-black">
-              Scan to view offers and rewards
-            </p>
-
-            <p className="mt-2 text-sm text-white/60 print:text-black/60">
-              No app install required
-            </p>
-
-            <button
-              onClick={printQr}
-              className="mt-6 w-full rounded-3xl bg-lime-300 p-4 font-black text-black print:hidden"
-            >
-              Print QR
-            </button>
-
-            <a
-              href={createdLink}
-              target="_blank"
-              className="mt-3 block rounded-3xl bg-white p-4 font-black text-black print:hidden"
-            >
-              Open Shop Page
-            </a>
-          </div>
-        )}
       </div>
 
       <style jsx>{`
@@ -163,12 +186,6 @@ export default function NewShopPage() {
 
         .input::placeholder {
           color: rgba(255, 255, 255, 0.4);
-        }
-
-        @media print {
-          body {
-            background: white;
-          }
         }
       `}</style>
     </main>
