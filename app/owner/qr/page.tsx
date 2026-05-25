@@ -2,29 +2,22 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { QRCodeCanvas } from 'qrcode.react'
 import { supabase } from '@/lib/supabase'
+import { QRCodeCanvas } from 'qrcode.react'
 import {
-  FaGift,
-  FaStar,
-  FaHeart,
-  FaSmile,
-  FaShieldAlt,
-  FaPrint,
-  FaMobileAlt,
-} from 'react-icons/fa'
-
-type Shop = {
-  id: string
-  shop_name: string
-  slug: string
-}
+  Gift,
+  Star,
+  Shield,
+  Heart,
+  Smile,
+  Printer,
+  ExternalLink,
+} from 'lucide-react'
 
 export default function OwnerQrPage() {
   const router = useRouter()
 
-  const [shop, setShop] = useState<Shop | null>(null)
-  const [qrLink, setQrLink] = useState('')
+  const [shop, setShop] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -41,9 +34,9 @@ export default function OwnerQrPage() {
 
     const { data } = await supabase
       .from('shops')
-      .select('id, shop_name, slug')
+      .select('*')
       .eq('id', shopId)
-      .maybeSingle()
+      .single()
 
     if (!data) {
       router.push('/owner/login')
@@ -51,7 +44,6 @@ export default function OwnerQrPage() {
     }
 
     setShop(data)
-    setQrLink(`${window.location.origin}/shop/${data.slug}`)
     setLoading(false)
   }
 
@@ -61,145 +53,197 @@ export default function OwnerQrPage() {
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#050711] text-white">
-        Loading QR...
+      <main className="flex min-h-screen items-center justify-center bg-[#030712] text-white">
+        Loading...
       </main>
     )
   }
 
+  const shopUrl = `${window.location.origin}/shop/${shop.slug}`
+
   return (
-    <main className="min-h-screen bg-[#050711] p-5 text-white">
-      <div className="mx-auto max-w-md py-8">
+    <main className="min-h-screen bg-[#030712] p-5 text-white">
+      <div className="mx-auto max-w-md">
         <button
           onClick={() => router.push('/owner/dashboard')}
-          className="mb-6 rounded-2xl bg-white px-4 py-3 text-sm font-black text-black print:hidden"
+          className="print:hidden mb-6 rounded-2xl bg-white px-4 py-3 text-sm font-black text-black"
         >
           Back
         </button>
 
-        <div className="relative overflow-hidden rounded-[42px] border border-white/10 bg-[#080d18] p-6 text-center shadow-2xl print:border-0 print:bg-white print:text-black print:shadow-none">
-          <div className="absolute left-[-90px] top-[-90px] h-52 w-52 rounded-full bg-lime-300/25 blur-3xl print:hidden" />
-          <div className="absolute bottom-[-100px] right-[-90px] h-56 w-56 rounded-full bg-cyan-300/25 blur-3xl print:hidden" />
+        <div className="qr-poster relative overflow-hidden rounded-[42px] border border-white/10 bg-[#080d18] p-6 text-center shadow-2xl">
+          <div className="absolute left-[-100px] top-[-100px] h-60 w-60 rounded-full bg-lime-300/20 blur-3xl" />
 
-          <div className="relative">
+          <div className="absolute bottom-[-120px] right-[-120px] h-72 w-72 rounded-full bg-cyan-400/20 blur-3xl" />
+
+          <div className="relative z-10">
             <h1
-              className="text-5xl font-black leading-tight text-transparent bg-clip-text bg-gradient-to-r from-lime-300 to-cyan-300 print:text-black"
+              className="text-5xl font-black leading-tight text-transparent bg-clip-text bg-gradient-to-r from-lime-300 to-cyan-300"
               style={{ fontFamily: 'cursive' }}
             >
               Smart Shop QR
             </h1>
 
-            <p className="mt-4 text-sm font-bold uppercase tracking-[0.25em] text-white/70 print:text-black/70">
+            <p className="mt-4 text-xs font-bold uppercase tracking-[0.35em] text-white/70">
               Shop Smart • Earn Rewards • Save More
             </p>
 
             <div className="mt-8">
-              <p className="text-3xl font-black uppercase tracking-tight text-white print:text-black">
-                Scan to Get
+              <p className="text-2xl font-black uppercase">
+                Scan To Get
               </p>
-              <p className="text-5xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-r from-lime-300 to-cyan-300 print:text-black">
+
+              <p className="text-5xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-r from-lime-300 to-cyan-300">
                 Rewards
               </p>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-4">
-              <div className="rounded-3xl border border-lime-300/30 bg-white/5 p-4 print:border-black/20 print:bg-white">
-                <FaGift className="mx-auto text-3xl text-lime-300 print:text-black" />
-                <p className="mt-2 text-xs font-black uppercase text-white/80 print:text-black">
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <div className="rounded-3xl border border-lime-300/40 bg-white/5 p-4">
+                <Gift className="mx-auto h-7 w-7 text-lime-300" />
+                <p className="mt-3 text-xs font-black uppercase">
                   Exciting Offers
                 </p>
               </div>
 
-              <div className="rounded-3xl border border-cyan-300/30 bg-white/5 p-4 print:border-black/20 print:bg-white">
-                <FaStar className="mx-auto text-3xl text-cyan-300 print:text-black" />
-                <p className="mt-2 text-xs font-black uppercase text-white/80 print:text-black">
+              <div className="rounded-3xl border border-cyan-300/40 bg-white/5 p-4">
+                <Star className="mx-auto h-7 w-7 text-cyan-300" />
+                <p className="mt-3 text-xs font-black uppercase">
                   Earn Points
                 </p>
               </div>
             </div>
 
-            <div className="mt-8 inline-block rounded-[34px] bg-white p-5 shadow-[0_0_35px_rgba(163,255,66,0.35)]">
-              <QRCodeCanvas
-                id="owner-shop-qr"
-                value={qrLink}
-                size={260}
-                bgColor="#ffffff"
-                fgColor="#000000"
-                level="H"
-                includeMargin
-              />
+            <div className="mt-8 flex justify-center">
+              <div className="rounded-[38px] bg-white p-6 shadow-[0_0_60px_rgba(163,230,53,0.25)]">
+                <QRCodeCanvas
+                  value={shopUrl}
+                  size={230}
+                  includeMargin
+                />
+              </div>
             </div>
 
-            <div className="mx-auto mt-6 w-fit rounded-full bg-gradient-to-r from-lime-300 to-cyan-300 px-6 py-3 text-sm font-black uppercase text-black">
+            <div className="mt-7 rounded-full bg-gradient-to-r from-lime-300 to-cyan-300 px-6 py-3 text-sm font-black uppercase text-black">
               Every Scan • Every Spend • Every Reward
             </div>
 
             <p
-              className="mt-5 text-3xl text-lime-300 print:text-black"
+              className="mt-6 text-4xl text-lime-300"
               style={{ fontFamily: 'cursive' }}
             >
               Thank you for supporting local!
             </p>
 
-            <p className="mt-3 text-lg font-black text-white print:text-black">
-              {shop?.shop_name}
+            <p className="mt-4 text-2xl font-black">
+              {shop.shop_name}
             </p>
 
-            <div className="mt-7 grid grid-cols-4 gap-2 rounded-3xl border border-white/10 bg-white/5 p-3 print:border-black/20 print:bg-white">
-              <div className="p-2">
-                <FaSmile className="mx-auto text-2xl text-lime-300 print:text-black" />
-                <p className="mt-2 text-[10px] font-black uppercase text-white/70 print:text-black">
+            <div className="mt-8 grid grid-cols-4 gap-3 rounded-[32px] border border-white/10 bg-white/5 p-4">
+              <div>
+                <Smile className="mx-auto h-6 w-6 text-lime-300" />
+                <p className="mt-2 text-[10px] font-black uppercase">
                   Easy
                 </p>
               </div>
 
-              <div className="p-2">
-                <FaGift className="mx-auto text-2xl text-yellow-300 print:text-black" />
-                <p className="mt-2 text-[10px] font-black uppercase text-white/70 print:text-black">
+              <div>
+                <Gift className="mx-auto h-6 w-6 text-yellow-300" />
+                <p className="mt-2 text-[10px] font-black uppercase">
                   Rewards
                 </p>
               </div>
 
-              <div className="p-2">
-                <FaShieldAlt className="mx-auto text-2xl text-cyan-300 print:text-black" />
-                <p className="mt-2 text-[10px] font-black uppercase text-white/70 print:text-black">
+              <div>
+                <Shield className="mx-auto h-6 w-6 text-cyan-300" />
+                <p className="mt-2 text-[10px] font-black uppercase">
                   Trusted
                 </p>
               </div>
 
-              <div className="p-2">
-                <FaHeart className="mx-auto text-2xl text-pink-400 print:text-black" />
-                <p className="mt-2 text-[10px] font-black uppercase text-white/70 print:text-black">
+              <div>
+                <Heart className="mx-auto h-6 w-6 text-pink-400" />
+                <p className="mt-2 text-[10px] font-black uppercase">
                   Value
                 </p>
               </div>
             </div>
 
-            <div className="mt-7 grid grid-cols-2 gap-4 print:hidden">
+            <div className="print:hidden mt-8 grid grid-cols-2 gap-3">
               <button
                 onClick={printQr}
-                className="flex items-center justify-center gap-2 rounded-3xl bg-lime-300 p-4 font-black text-black"
+                className="rounded-3xl bg-lime-300 p-4 font-black text-black"
               >
-                <FaPrint />
-                Print QR
+                <div className="flex items-center justify-center gap-2">
+                  <Printer className="h-5 w-5" />
+                  Print QR
+                </div>
               </button>
 
-              <a
-                href={qrLink}
-                target="_blank"
-                className="flex items-center justify-center gap-2 rounded-3xl bg-white p-4 font-black text-black"
+              <button
+                onClick={() => window.open(shopUrl, '_blank')}
+                className="rounded-3xl bg-white p-4 font-black text-black"
               >
-                <FaMobileAlt />
-                Open Page
-              </a>
+                <div className="flex items-center justify-center gap-2">
+                  <ExternalLink className="h-5 w-5" />
+                  Open Page
+                </div>
+              </button>
             </div>
 
-            <p className="mt-5 text-sm text-white/50 print:text-black/60">
+            <p className="mt-6 text-xs text-white/40">
               Scan • Earn • Redeem • Repeat
             </p>
           </div>
         </div>
       </div>
+
+      <style jsx global>{`
+        @media print {
+          @page {
+            size: A4 portrait;
+            margin: 6mm;
+          }
+
+          html,
+          body {
+            background: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+
+          body * {
+            visibility: hidden;
+          }
+
+          .qr-poster,
+          .qr-poster * {
+            visibility: visible;
+          }
+
+          .qr-poster {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            max-width: 190mm;
+            min-height: auto;
+            margin: 0 auto;
+            border: none !important;
+            box-shadow: none !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            transform: scale(0.92);
+            transform-origin: top center;
+          }
+
+          .print\\:hidden {
+            display: none !important;
+          }
+        }
+      `}</style>
     </main>
   )
 }
