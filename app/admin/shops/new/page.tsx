@@ -111,7 +111,7 @@ export default function NewShopPage() {
   return (
     <main className="min-h-screen bg-[#050711] p-5 text-white">
       <div className="mx-auto max-w-md py-8">
-        <h1 className="text-3xl font-black">Register Your Shop</h1>
+        <h1 className="text-3xl font-black">Create Your Smart Shop</h1>
         <p className="mt-2 text-sm text-white/60">
           Create your Smart Shop QR account. After registration, login to your dashboard to view and print your QR.
         </p>
